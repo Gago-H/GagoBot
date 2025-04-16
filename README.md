@@ -1,0 +1,2 @@
+# GagoBot
+My discord bot
