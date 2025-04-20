@@ -11,7 +11,7 @@ module.exports = {
       const timeArg = args[1]; // e.g. 10h
   
       if (!target) return message.reply('Please mention a user to mute.'); // value amount
-      if (!timeArg || !/^(\d+)(s|m|h)$/.test(timeArg)) { // duration type
+      if (!timeArg || !/^(\d+)(s|m|h|d)$/.test(timeArg)) { // duration type
         return message.reply('Please provide a valid duration (e.g., 10s, 5m, 2h).');
       }
   
@@ -23,8 +23,9 @@ module.exports = {
         case 's': durationMs = amount * 1000; break;
         case 'm': durationMs = amount * 60 * 1000; break;
         case 'h': durationMs = amount * 60 * 60 * 1000; break;
+        case 'd': durationMs = amount * 24 * 60 * 60 * 1000; break;
         default:
-          return message.reply('Invalid time format. Use s, m, or h.');
+          return message.reply('Invalid time format. Use s, m, h, or d.');
       }
   
       const mutedRole = message.guild.roles.cache.find(role => role.name === 'Muted');
