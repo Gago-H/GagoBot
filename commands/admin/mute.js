@@ -1,9 +1,12 @@
+const { PermissionsBitField } = require("discord.js");
+
 module.exports = {
     name: 'mute',
-    description: 'Mutes a user for a specified time (e.g., 10s, 5m, 2h)',
+    description: 'Mutes a user for a specified time (e.g., 10s, 5m, 2h, 1d)',
     category: 'Admin',
     async execute(message, args) {
-      if (!message.member.permissions.has('MANAGE_ROLES')) { // make sure the user has access to admin commands
+      //console.log(message.member.permissions);
+      if (!message.member.permissions.has(PermissionsBitField.Flags.Administrator)) { // make sure the user has access to admin commands
         return message.reply("You don't have permission to mute members.");
       }
   
@@ -12,7 +15,7 @@ module.exports = {
   
       if (!target) return message.reply('Please mention a user to mute.'); // value amount
       if (!timeArg || !/^(\d+)(s|m|h|d)$/.test(timeArg)) { // duration type
-        return message.reply('Please provide a valid duration (e.g., 10s, 5m, 2h).');
+        return message.reply('Please provide a valid duration (e.g., 10s, 5m, 2h, 1d).');
       }
   
       const amount = parseInt(timeArg.slice(0, -1)); //splits the timeArg
