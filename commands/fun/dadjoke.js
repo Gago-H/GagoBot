@@ -1,6 +1,6 @@
 module.exports = {
     name: 'dadjoke',
-    description: 'Pulls a random dadjoke from icanhazdadjoke',
+    description: 'Get a random dadjoke from icanhazdadjoke',
     category: 'Fun',
     async execute(message){
         const fetch = require('node-fetch');
