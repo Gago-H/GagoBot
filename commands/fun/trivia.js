@@ -59,26 +59,26 @@ module.exports = {
 
             const collected = await new Promise(resolve => { // waits for either click or 60s timeout
                 collector.on('collect', async i => {
-                    await i.deferReply({ ephemeral: true });
-
                     const userId = i.user.id;
                     const userAnswer = i.values[0];
                     const correctLetter = optionLabels[correctIndex];
 
-                    if (answeredUsers.has(i.user.id)) {
+                    if (answeredUsers.has(userId)) {
                         await i.reply({ content: 'You already answered!', ephemeral: true });
                         return;
                     }
-                
-                    answeredUsers.add(i.user.id);
+
+                    answeredUsers.add(userId);
+
+                    await i.deferReply({ ephemeral: true });
 
                     if (userAnswer === correctLetter) {
                         const currentScore = scores.get(userId) || 0;
                         scores.set(userId, currentScore + 1);
 
-                        await i.followUp({ content: '✅ Correct!' });
+                        await i.editReply({ content: '✅ Correct!' });
                     } else {
-                        await i.followUp({ content: `❌ Wrong! The correct answer was **${correctLetter}. ${question.correct_answer}**.` });
+                        await i.editReply({ content: `❌ Wrong! The correct answer was **${correctLetter}. ${decodeHTMLEntities(question.correct_answer)}**.` });
                     }
                 });
 
