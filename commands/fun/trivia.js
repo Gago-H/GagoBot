@@ -16,7 +16,14 @@ module.exports = {
         console.log(urlAPI);
         console.log(data);
 
+        message.channel.send('# GAME START 🚩\nYou have 1 minute to answer each question before it gets closed.\n');
+
+        const scores = new Map();
+
         for (const question of data.results) {
+            // if (question.type === 'multiple'){
+
+            // }
             const allAnswers = [...question.incorrect_answers]; // copy incorrect_answers array to not mutate the original
             const correctIndex = Math.floor(Math.random() * (allAnswers.length + 1));
             allAnswers.splice(correctIndex, 0, question.correct_answer); // replace 0 items and insert the right answer at the correctIndex (rng)
@@ -41,48 +48,67 @@ module.exports = {
 
             const row = new ActionRowBuilder().addComponents(menu);
 
-            await message.channel.send({
+            const sentMessage = await message.channel.send({ // send one question at a time
                 embeds: [embed],
                 components: [row]
             });
 
-            const filter = i => i.customId === 'trivia_select' && i.user.id === message.author.id;
-            const collector = message.channel.createMessageComponentCollector({ filter, time: 15000 });
+            const filter = i => i.customId === 'trivia_select';
+            const collector = sentMessage.createMessageComponentCollector({ filter, time: 60000 }); // max 1 refers to the collector which ends after 1 interaction
+            const answeredUsers = new Set();
 
-            collector.on('collect', async i => {
-                await i.deferReply();
+            const collected = await new Promise(resolve => { // waits for either click or 60s timeout
+                collector.on('collect', async i => {
+                    await i.deferReply({ ephemeral: true });
 
-                const userAnswer = i.values[0]; // 'A', 'B', etc.
-                const correctIndex = allAnswers.indexOf(question.correct_answer);
-                const correctLetter = optionLabels[correctIndex];
+                    const userId = i.user.id;
+                    const userAnswer = i.values[0];
+                    const correctLetter = optionLabels[correctIndex];
 
-                if (userAnswer === correctLetter) {
-                    await i.followUp({ content: '✅ Correct!', ephemeral: true });
-                } else {
-                    await i.followUp({ content: `❌ Wrong! The correct answer was **${correctLetter}**.`, ephemeral: true });
-                }
+                    if (answeredUsers.has(i.user.id)) {
+                        await i.reply({ content: 'You already answered!', ephemeral: true });
+                        return;
+                    }
+                
+                    answeredUsers.add(i.user.id);
 
-                collector.stop();
+                    if (userAnswer === correctLetter) {
+                        const currentScore = scores.get(userId) || 0;
+                        scores.set(userId, currentScore + 1);
+
+                        await i.followUp({ content: '✅ Correct!' });
+                    } else {
+                        await i.followUp({ content: `❌ Wrong! The correct answer was **${correctLetter}. ${question.correct_answer}**.` });
+                    }
+                });
+
+                collector.on('end', async collected => {
+                    const disabledMenu = new StringSelectMenuBuilder()
+                        .setCustomId('trivia_select')
+                        .setPlaceholder(`Question Closed`)
+                        .addOptions(answerChoices)
+                        .setDisabled(true);
+
+                    const disabledRow = new ActionRowBuilder().addComponents(disabledMenu);
+
+                    await sentMessage.edit({ components: [disabledRow] });
+
+                    console.log(`Correct answer: ${optionLabels[correctIndex]}. ${question.correct_answer}`);
+                });
             });
+        }
 
-            collector.on('end', async () => {
-                const disabledMenu = new StringSelectMenuBuilder()
-                    .setCustomId('trivia_select')
-                    .setPlaceholder(`Time's up!`)
-                    .addOptions(answerChoices)
-                    .setDisabled(true);
+        if (scores.size > 0) {
+            let leaderboard = '# 🏆 Final Scores:\n';
 
-                const disabledRow = new ActionRowBuilder().addComponents(disabledMenu);
+            for (const [userId, score] of scores) {
+                const user = await message.client.users.fetch(userId);
+                leaderboard += `${user.username}: **${score}** points\n\n`;
+            }
 
-                const messages = await message.channel.messages.fetch({ limit: 10 });
-                const sent = messages.find(m => m.author.id === message.client.user.id && m.components.length > 0);
-
-                if (sent) {
-                    await sent.edit({ components: [disabledRow] });
-                }
-            });
-
-            console.log(`Correct answer: ${optionLabels[correctIndex]}. ${question.correct_answer}`);
+            await message.channel.send({ content: leaderboard });
+        } else {
+            await message.channel.send({ content: "No one answered any questions!" });
         }
     }
 }
