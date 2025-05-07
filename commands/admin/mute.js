@@ -1,4 +1,5 @@
-const { PermissionsBitField } = require("discord.js");
+const CheckPermissions = require('../../utils/CheckPermissions');
+
 
 module.exports = {
     name: 'mute',
@@ -6,9 +7,7 @@ module.exports = {
     category: 'Admin',
     async execute(message, args) {
       //console.log(message.member.permissions);
-      if (!message.member.permissions.has(PermissionsBitField.Flags.Administrator)) { // make sure the user has access to admin commands
-        return message.reply("You don't have permission to mute members.");
-      }
+      CheckPermissions(message);
   
       const target = message.mentions.members.first(); // user mentioned
       const timeArg = args[1]; // e.g. 10h
