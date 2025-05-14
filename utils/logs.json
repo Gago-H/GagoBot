@@ -31,6 +31,16 @@
           "duration": "10m",
           "reason": "testing logs",
           "date": "2025-05-14T00:27:11.761Z"
+        },
+        {
+          "admin": "gagoh",
+          "admin_id": "177958645319860225",
+          "user": "gago36602",
+          "user_id": "503703348424343562",
+          "offense_type": "mute",
+          "duration": "10m",
+          "reason": "testing logs and gitignore",
+          "date": "2025-05-14T00:28:53.385Z"
         }
       ]
     }
