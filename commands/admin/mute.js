@@ -1,11 +1,11 @@
 const CheckPermissions = require('../../utils/CheckPermissions');
-
+const logOffense = require('../../utils/logOffense');
 
 module.exports = {
     name: 'mute',
     description: 'Mutes a user for a specified time (e.g., 10s, 5m, 2h, 1d)',
     category: 'Admin',
-    async execute(message, args) {
+    async execute(message, args, commandName) {
       //console.log(message.member.permissions);
       CheckPermissions(message);
   
@@ -19,6 +19,8 @@ module.exports = {
   
       const amount = parseInt(timeArg.slice(0, -1)); //splits the timeArg
       const unit = timeArg.slice(-1);
+      let reason = args.slice(2).join(' ') || "No reason provided.";
+      console.log(reason);
   
       let durationMs; // setTimeout uses ms so we need to convert to s, m, h
       switch (unit) {
@@ -35,7 +37,9 @@ module.exports = {
   
       try {
         await target.roles.add(mutedRole);
-        message.channel.send(`${target.user.tag} has been muted for ${amount}${unit}.`); // mute user for X amount
+        message.channel.send(`${target.user.tag} has been muted for ${amount}${unit} for reason: ${reason}`); // mute user for X amount
+
+        logOffense(message, commandName, timeArg, reason, target);
   
         setTimeout(async () => { // wait out the mute
           // Only remove the role if they still have it

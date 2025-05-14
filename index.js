@@ -36,7 +36,7 @@ client.on('messageCreate', message => {
   if (!command) return;
 
   try {
-    command.execute(message, args);
+    command.execute(message, args, commandName);
   } catch (err) {
     console.error(err);
     message.reply("There was an error trying to run that command!");

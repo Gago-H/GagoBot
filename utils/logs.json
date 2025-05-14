@@ -1,0 +1,28 @@
+{
+  "guilds": {
+    "364942757606981632": {
+      "offenses": [
+        {
+          "admin": "gagoh",
+          "admin_id": "177958645319860225",
+          "user": "gago36602",
+          "user_id": "503703348424343562",
+          "offense_type": "mute",
+          "duration": "15m",
+          "reason": "rule 20",
+          "date": "2025-05-14T00:18:53.292Z"
+        },
+        {
+          "admin": "gagoh",
+          "admin_id": "177958645319860225",
+          "user": "gago36602",
+          "user_id": "503703348424343562",
+          "offense_type": "ban",
+          "duration": "N/A",
+          "reason": "too many offenses",
+          "date": "2025-05-14T00:19:31.019Z"
+        }
+      ]
+    }
+  }
+}

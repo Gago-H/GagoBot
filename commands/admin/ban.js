@@ -5,11 +5,12 @@ module.exports = {
     name: 'ban',
     description: 'Bans a user',
     category: 'Admin',
-    async execute(message, args) {
+    async execute(message, args, commandName) {
         CheckPermissions(message);
 
         const target = message.mentions.members.first();
         let reason = args.slice(1).join(' ') || "No reason provided.";
+        const duration = 'N/A';
 
         try {
             if (!target) {
@@ -23,7 +24,7 @@ module.exports = {
             // }
 
             //await target.ban({ reason: reason });
-            logOffense(message, args, reason, target);
+            logOffense(message, commandName, duration, reason, target);
 
             message.reply(`${message.member} has banned ${target} for reason: ${reason}`);
         } catch (error) {
