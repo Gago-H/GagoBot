@@ -2,8 +2,8 @@ const CheckPermissions = require('../../utils/CheckPermissions');
 const logOffense = require('../../utils/logOffense');
 
 module.exports = {
-    name: 'ban',
-    description: 'Bans a user',
+    name: 'kick',
+    description: 'Kicks a user',
     category: 'Admin',
     async execute(message, args, commandName) {
         CheckPermissions(message);
@@ -18,7 +18,12 @@ module.exports = {
                 return;
             }
 
-            await target.ban({ reason: reason });
+            // if (!target.bannable) {
+            //     message.reply("This user is not bannable.");
+            //     return;
+            // }
+
+            await target.kick({ reason: reason });
             logOffense(message, commandName, duration, reason, target);
 
             message.reply(`${message.member} has banned ${target} for reason: ${reason}`);
