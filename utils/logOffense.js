@@ -1,32 +1,34 @@
-const fs = require('fs');
-const path = require('path');
+const pool = require('./db');
 
-module.exports = function logOffense(message, commandName, duration, reason, target) {
-    const logPath = path.join(__dirname, 'logs.json');
-            const logData = {
-                admin: message.author.tag,
-                admin_id: message.author.id,
-                user: target.user.tag,
-                user_id: target.id,
-                offense_type: commandName,
-                duration: duration,
-                reason: reason,
-                date: new Date().toISOString()
-            };
+async function logOffense(message, commandName, duration, reason, target) {
+    const queryData = {
+        adminId: message.author.id,
+        userId: target.id,
+        guildId: message.guild.id,
+        offenseType: commandName,
+        duration: duration,
+        reason: reason,
+        date: new Date().toISOString()
+    }
 
-            let logFile;
-            try {
-                logFile = JSON.parse(fs.readFileSync(logPath, 'utf-8'));
-            } catch (error) {
-                logFile = { guilds: {} };
-            }
+    const query = `
+        INSERT INTO offenses (admin_id, user_id, guild_id, offense_type, duration, reason, date)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)`;
 
-            const guildId = message.guild.id;
-
-            if (!logFile.guilds[guildId]) {
-                logFile.guilds[guildId] = { offenses: [] };
-            }
-
-            logFile.guilds[guildId].offenses.push(logData);
-            fs.writeFileSync(logPath, JSON.stringify(logFile, null, 2));
+    try {
+        await pool.query(query, [
+            queryData.adminId,
+            queryData.userId,
+            queryData.guildId,
+            queryData.offenseType,
+            queryData.duration,
+            queryData.reason,
+            queryData.date
+        ]);
+        console.log(`Logged offense for user ${queryData.userId}`);
+    } catch (err) {
+        console.error('Error logging offense:', err);
+    }
 }
+
+module.exports = logOffense;
